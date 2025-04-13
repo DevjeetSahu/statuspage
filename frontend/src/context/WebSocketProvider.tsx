@@ -27,7 +27,10 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
   const [latestUpdate, setLatestUpdate] = useState<StatusData | null>(null);
 
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:8000/ws/status/");
+    const socket = new WebSocket(
+      `${import.meta.env.VITE_WS_URL || "ws://localhost:8000/ws/status/"}`
+    );
+
 
     socket.onopen = () => {
       console.log("✅ WebSocket connected");
