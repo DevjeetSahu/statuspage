@@ -56,11 +56,11 @@ class ServiceViewSet(viewsets.ModelViewSet):
             "description":service.description,
             "event": event,
         }
-        if event != "deleted":
-            data.update({
-                "status": service.status,
-                "updated_at": str(service.updated_at),
-            })
+        # if event != "deleted":
+        #     data.update({
+        #         "status": service.status,
+        #         "updated_at": str(service.updated_at),
+        #     })
         async_to_sync(channel_layer.group_send)(
             "status_updates",
             {
