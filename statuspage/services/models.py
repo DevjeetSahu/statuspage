@@ -118,7 +118,7 @@ class Incident(models.Model):
         if should_notify:
             channel_layer = get_channel_layer()
             async_to_sync(channel_layer.group_send)(
-                "incident_updates",  # New group for incident updates
+                "status_updates",  # New group for incident updates
                 {
                     "type": "send_incident_update",
                     "data": {

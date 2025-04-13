@@ -113,7 +113,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         title = instance.title
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
-            "incident_updates",
+            "status_updates",
             {
                 "model":"incident",
                 "type": "send_incident_update",
@@ -138,7 +138,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
             "event": event,
         }
         async_to_sync(channel_layer.group_send)(
-            "incident_updates",
+            "status_updates",
             {
                 "type": "send_incident_update",
                 "data": data,
