@@ -202,14 +202,14 @@ export default function ServiceStatusPage() {
     for (let i = 0; i < 30; i++) {
       const date = new Date();
       date.setDate(now.getDate() - i);
-      const formatted = date.toLocaleDateString();
+      const formatted = date.toISOString().split("T")[0];
       map[formatted] = 0;
     }
 
     incidents.forEach((incident) => {
       const dateObj = new Date(incident.created_at);
       if (dateObj >= last30Days) {
-        const date = dateObj.toLocaleDateString();
+        const date = dateObj.toISOString().split("T")[0];
         map[date] = (map[date] || 0) + 1;
       }
     });
@@ -314,7 +314,7 @@ export default function ServiceStatusPage() {
                 <div className="flex justify-between items-center mb-1">
                   <h3 className="text-md font-semibold">{incident.title}</h3>
                   <span className="text-xs text-muted-foreground">
-                    {new Date(incident.created_at).toLocaleString()}
+                    {new Date(incident.created_at).toISOString().split('T')[0]}
                   </span>
                 </div>
                 <p className="text-sm">{incident.description}</p>
@@ -323,36 +323,6 @@ export default function ServiceStatusPage() {
           </div>
         </section>
       )}
-
-      {/* Incident Timeline */}
-      {/* <section className="space-y-4">
-        <h2 className="text-xl font-semibold">Incident Timeline</h2>
-        <div className="space-y-3">
-          {incidents
-            .sort(
-              (a, b) =>
-                new Date(b.created_at).getTime() -
-                new Date(a.created_at).getTime()
-            )
-            .slice(0, 5)
-            .map((incident) => (
-              <Card
-                key={incident.id}
-                className="p-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition"
-              >
-                <div className="flex justify-between items-center mb-1">
-                  <span className="font-medium">{incident.title}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(incident.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Status: {incident.status}
-                </p>
-              </Card>
-            ))}
-        </div>
-      </section> */}
 
       {/* Incident Timeline with Search */}
       <section className="space-y-4">
@@ -381,7 +351,7 @@ export default function ServiceStatusPage() {
                 <div className="flex justify-between items-center mb-1">
                   <span className="font-medium">{incident.title}</span>
                   <span className="text-xs text-muted-foreground">
-                    {new Date(incident.created_at).toLocaleDateString()}
+                    {new Date(incident.created_at).toISOString().split('T')[0]}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
