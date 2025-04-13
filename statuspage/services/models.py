@@ -49,7 +49,7 @@ class Service(models.Model):
                         "name": self.name,
                         "description": self.description,
                         "status": self.status,
-                        "updated_at": str(self.updated_at),
+                        "updated_at": self.updated_at.isoformat()
                     },
                 },
             )
@@ -58,29 +58,33 @@ class Service(models.Model):
         self._original_name = self.name
         self._original_description = self.description
         self._original_status = self.status
+
+
+    def delete(self, *args, **kwargs):
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "status_updates",  # Same group used in the `save()` method
+            {
+                "type": "send_status_update",
+                "data": {
+                    "model": "service",
+                    "type": "service_deleted",
+                    "id": self.id,
+                    "name": self.name,
+                    "description": self.description,
+                    "status": self.status,
+                    "event": "deleted",
+                    "updated_at": self.updated_at.isoformat(),
+                },
+            },
+        )
+        super().delete(*args, **kwargs)
+
   
 
     def __str__(self):
         return self.name
     
-# class Incident(models.Model):
-#     STATUS_CHOICES = [
-#         ("investigating", "Investigating"),
-#         ("identified", "Identified"),
-#         ("monitoring", "Monitoring"),
-#         ("resolved", "Resolved"),
-#     ]
-
-#     title = models.CharField(max_length=255)
-#     description = models.TextField()
-#     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="investigating")
-#     affected_services = models.ManyToManyField("Service", related_name="incidents")
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
-
-
-#     def __str__(self):
-#         return self.title
 
 
 class Incident(models.Model):
@@ -128,7 +132,7 @@ class Incident(models.Model):
                         "title": self.title,
                         "description": self.description,
                         "status": self.status,
-                        "updated_at": str(self.updated_at),
+                        "updated_at": self.updated_at.isoformat()
                     },
                 },
             )
@@ -136,6 +140,28 @@ class Incident(models.Model):
         self._original_title = self.title
         self._original_description = self.description
         self._original_status = self.status
+
+
+    def delete(self, *args, **kwargs):
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "status_updates",
+            {
+                "type": "send_incident_update",
+                "data": {
+                    "model": "incident",
+                    "type": "incident_deleted",
+                    "incident_id": self.id,
+                    "title": self.title,
+                    "status": self.status,
+                    "description": self.description,
+                    "event": "deleted",
+                    "updated_at": self.updated_at.isoformat()
+                },
+            },
+        )
+        super().delete(*args, **kwargs)
+
 
     def __str__(self):
         return self.title
