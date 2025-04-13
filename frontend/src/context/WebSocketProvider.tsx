@@ -128,22 +128,28 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
     };
 
     socket.onmessage = (event) => {
-      const data: WebSocketPayload = JSON.parse(event.data);
-      console.log("🔄 WebSocket Data:", data);
+      console.log("📩 Raw WebSocket data:", event.data);
+      try {
+        const data: WebSocketPayload = JSON.parse(event.data);
+        console.log("🔄 WebSocket Data:", data);
 
-      switch (data.model) {
-        case "service":
-          setLatestServiceUpdate(data as StatusData);
-          break;
-        case "incident":
-          setLatestIncident(data as IncidentData);
-          break;
-        case "incidentupdate":
-          setLatestIncidentUpdate(data as IncidentUpdateData);
-          break;
-        default:
-          console.warn("🚨 Unknown WebSocket message", data);
+        switch (data.model) {
+          case "service":
+            setLatestServiceUpdate(data as StatusData);
+            break;
+          case "incident":
+            setLatestIncident(data as IncidentData);
+            break;
+          case "incidentupdate":
+            setLatestIncidentUpdate(data as IncidentUpdateData);
+            break;
+          default:
+            console.warn("🚨 Unknown WebSocket message", data);
+        }
+      } catch (e) {
+        console.error("❌ Error parsing WebSocket message", e, event.data);
       }
+      
     };
 
     socket.onclose = () => {

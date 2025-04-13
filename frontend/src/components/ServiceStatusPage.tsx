@@ -140,7 +140,7 @@ export default function ServiceStatusPage() {
                   status: data.status,
                   created_at: data.created_at,
                   updated_at: data.updated_at,
-                  affected_services: data.affected_services ?? [],
+                  affected_services: data.affected_services || [],
                 },
               ];
             }
