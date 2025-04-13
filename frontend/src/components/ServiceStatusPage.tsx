@@ -9,7 +9,6 @@ import {
   CheckCircle,
   AlertTriangle,
   AlertOctagon,
-  Wrench,
   Search,
 } from "lucide-react";
 import {
@@ -62,12 +61,7 @@ const statusStyles = {
     label: "Major Outage",
     color: "bg-red-100 text-red-700",
     icon: <AlertOctagon className="w-4 h-4 text-red-600" />,
-  },
-  maintenance: {
-    label: "Maintenance",
-    color: "bg-blue-100 text-blue-700",
-    icon: <Wrench className="w-4 h-4 text-blue-600" />,
-  },
+  }
 };
 
 const pieColors = ["#EF4444", "#F59E0B", "#10B981", "#3B82F6"];
@@ -77,6 +71,7 @@ export default function ServiceStatusPage() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("");
+  const [incidentSearch, setIncidentSearch] = useState("");
 
   useEffect(() => {
     getServices().then((res) => setServices(res.data));
@@ -95,41 +90,79 @@ export default function ServiceStatusPage() {
       const data = JSON.parse(event.data);
       console.log("📩 Received update:", data);
 
-      setServices((prev) => {
-        // Handle different event types: "created", "updated", "deleted"
-        if (data.event === "created") {
-          // Add new service if it doesn't exist
-          const exists = prev.find((s) => s.id === data.service_id);
-          if (!exists) {
-            return [
-              ...prev,
-              {
-                id: data.service_id,
-                name: data.name,
-                description: data.description,
-                status: data.status,
-              },
-            ];
+      if (data.model === "service") {
+        // service handling logic (already there)
+        setServices((prev) => {
+          if (data.event === "created") {
+            const exists = prev.find((s) => s.id === data.service_id);
+            if (!exists) {
+              return [
+                ...prev,
+                {
+                  id: data.service_id,
+                  name: data.name,
+                  description: data.description,
+                  status: data.status,
+                },
+              ];
+            }
+            return prev;
+          } else if (data.event === "updated") {
+            return prev.map((s) =>
+              s.id === data.service_id
+                ? {
+                    ...s,
+                    status: data.status,
+                    description: data.description,
+                    name: data.name,
+                  }
+                : s
+            );
+          } else if (data.event === "deleted") {
+            return prev.filter((s) => s.id !== data.service_id);
           }
           return prev;
-        } else if (data.event === "updated") {
-          // Update the service's status in the list
-          return prev.map((s) =>
-            s.id === data.service_id
-              ? {
-                  ...s,
-                  status: data.status,
+        });
+      }
+
+      if (data.model === "incident") {
+        // 🆕 incident handling logic
+        setIncidents((prev) => {
+          if (data.event === "created") {
+            const exists = prev.find((i) => i.id === data.incident_id);
+            if (!exists) {
+              return [
+                ...prev,
+                {
+                  id: data.incident_id,
+                  title: data.title,
                   description: data.description,
-                  name: data.name,
-                }
-              : s
-          );
-        } else if (data.event === "deleted") {
-          // Remove the deleted service
-          return prev.filter((s) => s.id !== data.service_id);
-        }
-        return prev;
-      });
+                  status: data.status,
+                  created_at: data.created_at,
+                  updated_at: data.updated_at,
+                  affected_services: data.affected_services ?? [],
+                },
+              ];
+            }
+            return prev;
+          } else if (data.event === "updated") {
+            return prev.map((i) =>
+              i.id === data.incident_id
+                ? {
+                    ...i,
+                    title: data.title,
+                    description: data.description,
+                    status: data.status,
+                    updated_at: data.updated_at,
+                  }
+                : i
+            );
+          } else if (data.event === "deleted") {
+            return prev.filter((i) => i.id !== data.incident_id);
+          }
+          return prev;
+        });
+      }
     };
 
     socket.onerror = (error) => console.error("❌ WebSocket error:", error);
@@ -137,6 +170,7 @@ export default function ServiceStatusPage() {
 
     return () => socket.close();
   }, []);
+
 
   const activeIncidents = incidents.filter((i) => i.status !== "resolved");
 
@@ -147,6 +181,15 @@ export default function ServiceStatusPage() {
       return matchesSearch && matchesFilter;
     });
   }, [services, search, filter]);
+
+   const filteredIncidents = useMemo(() => {
+     return incidents.filter((i) => {
+       return (
+         i.title.toLowerCase().includes(incidentSearch.toLowerCase()) ||
+         i.description.toLowerCase().includes(incidentSearch.toLowerCase())
+       );
+     });
+   }, [incidents, incidentSearch]);
 
   // Incident frequency per day
   const incidentByDate = useMemo(() => {
@@ -282,10 +325,48 @@ export default function ServiceStatusPage() {
       )}
 
       {/* Incident Timeline */}
-      <section className="space-y-4">
+      {/* <section className="space-y-4">
         <h2 className="text-xl font-semibold">Incident Timeline</h2>
         <div className="space-y-3">
           {incidents
+            .sort(
+              (a, b) =>
+                new Date(b.created_at).getTime() -
+                new Date(a.created_at).getTime()
+            )
+            .slice(0, 5)
+            .map((incident) => (
+              <Card
+                key={incident.id}
+                className="p-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition"
+              >
+                <div className="flex justify-between items-center mb-1">
+                  <span className="font-medium">{incident.title}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(incident.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Status: {incident.status}
+                </p>
+              </Card>
+            ))}
+        </div>
+      </section> */}
+
+      {/* Incident Timeline with Search */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold">Incident Timeline</h2>
+
+        <Input
+          placeholder="Search incidents..."
+          value={incidentSearch}
+          onChange={(e) => setIncidentSearch(e.target.value)}
+          className="max-w-md mb-4"
+        />
+
+        <div className="space-y-3">
+          {filteredIncidents
             .sort(
               (a, b) =>
                 new Date(b.created_at).getTime() -

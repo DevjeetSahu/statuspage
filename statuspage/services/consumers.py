@@ -20,4 +20,7 @@ class StatusConsumer(AsyncWebsocketConsumer):
         print("📨 Broadcasting update to client:", event["data"])
         await self.send(text_data=json.dumps(event["data"]))
 
+    async def send_incident_update(self, event):
+        await self.send(text_data=json.dumps(event["data"]))
+
     

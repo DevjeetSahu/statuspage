@@ -62,6 +62,26 @@ class Service(models.Model):
     def __str__(self):
         return self.name
     
+# class Incident(models.Model):
+#     STATUS_CHOICES = [
+#         ("investigating", "Investigating"),
+#         ("identified", "Identified"),
+#         ("monitoring", "Monitoring"),
+#         ("resolved", "Resolved"),
+#     ]
+
+#     title = models.CharField(max_length=255)
+#     description = models.TextField()
+#     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="investigating")
+#     affected_services = models.ManyToManyField("Service", related_name="incidents")
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+
+
+#     def __str__(self):
+#         return self.title
+
+
 class Incident(models.Model):
     STATUS_CHOICES = [
         ("investigating", "Investigating"),
@@ -77,9 +97,47 @@ class Incident(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._original_title = self.title
+        self._original_description = self.description
+        self._original_status = self.status
+
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+
+        should_notify = (
+            is_new or
+            self.title != self._original_title or
+            self.description != self._original_description or
+            self.status != self._original_status
+        )
+
+        if should_notify:
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                "incident_updates",  # New group for incident updates
+                {
+                    "type": "send_incident_update",
+                    "data": {
+                        "type": "incident_created" if is_new else "incident_update",
+                        "id": self.id,
+                        "title": self.title,
+                        "description": self.description,
+                        "status": self.status,
+                        "updated_at": str(self.updated_at),
+                    },
+                },
+            )
+
+        self._original_title = self.title
+        self._original_description = self.description
+        self._original_status = self.status
 
     def __str__(self):
         return self.title
+
 
 
 class IncidentUpdate(models.Model):
