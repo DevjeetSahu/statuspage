@@ -44,7 +44,7 @@ class Service(models.Model):
                     "type": "send_status_update",
                     "data": {
                         "model":"service",
-                        "type": "service_created" if is_new else "service_update",
+                        "type": "created" if is_new else "updated",
                         "id": self.id,
                         "name": self.name,
                         "description": self.description,
@@ -68,7 +68,7 @@ class Service(models.Model):
                 "type": "send_status_update",
                 "data": {
                     "model": "service",
-                    "type": "service_deleted",
+                    "type": "deleted",
                     "id": self.id,
                     "name": self.name,
                     "description": self.description,
@@ -127,7 +127,7 @@ class Incident(models.Model):
                     "type": "send_incident_update",
                     "data": {
                         "model":"incident",
-                        "type": "incident_created" if is_new else "incident_update",
+                        "type": "created" if is_new else "updated",
                         "id": self.id,
                         "title": self.title,
                         "description": self.description,
@@ -150,7 +150,7 @@ class Incident(models.Model):
                 "type": "send_incident_update",
                 "data": {
                     "model": "incident",
-                    "type": "incident_deleted",
+                    "type": "deleted",
                     "incident_id": self.id,
                     "title": self.title,
                     "status": self.status,

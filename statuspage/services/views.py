@@ -83,9 +83,7 @@ def register(request):
     User.objects.create_user(username=username, password=password)
     return Response({'message': 'User created successfully'}, status=status.HTTP_201_CREATED)
 
-# class IncidentViewSet(viewsets.ModelViewSet):
-#     queryset = Incident.objects.all()
-#     serializer_class = IncidentSerializer
+
 
 class IncidentViewSet(viewsets.ModelViewSet):
     queryset = Incident.objects.all()
