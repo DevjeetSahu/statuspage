@@ -86,6 +86,58 @@ export default function ServiceStatusPage() {
     });
   }, []);
 
+  useEffect(() => {
+    const socket = new WebSocket(`${import.meta.env.VITE_WS_URL}`);
+
+    socket.onopen = () => console.log("✅ WebSocket connected");
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("📩 Received update:", data);
+
+      setServices((prev) => {
+        // Handle different event types: "created", "updated", "deleted"
+        if (data.event === "created") {
+          // Add new service if it doesn't exist
+          const exists = prev.find((s) => s.id === data.service_id);
+          if (!exists) {
+            return [
+              ...prev,
+              {
+                id: data.service_id,
+                name: data.name,
+                description: data.description,
+                status: data.status,
+              },
+            ];
+          }
+          return prev;
+        } else if (data.event === "updated") {
+          // Update the service's status in the list
+          return prev.map((s) =>
+            s.id === data.service_id
+              ? {
+                  ...s,
+                  status: data.status,
+                  description: data.description,
+                  name: data.name,
+                }
+              : s
+          );
+        } else if (data.event === "deleted") {
+          // Remove the deleted service
+          return prev.filter((s) => s.id !== data.service_id);
+        }
+        return prev;
+      });
+    };
+
+    socket.onerror = (error) => console.error("❌ WebSocket error:", error);
+    socket.onclose = () => console.log("🔌 WebSocket closed");
+
+    return () => socket.close();
+  }, []);
+
   const activeIncidents = incidents.filter((i) => i.status !== "resolved");
 
   const filteredServices = useMemo(() => {
