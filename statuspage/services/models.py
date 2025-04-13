@@ -43,6 +43,7 @@ class Service(models.Model):
                 {
                     "type": "send_status_update",
                     "data": {
+                        "model":"service",
                         "type": "service_created" if is_new else "service_update",
                         "id": self.id,
                         "name": self.name,
@@ -121,6 +122,7 @@ class Incident(models.Model):
                 {
                     "type": "send_incident_update",
                     "data": {
+                        "model":"incident",
                         "type": "incident_created" if is_new else "incident_update",
                         "id": self.id,
                         "title": self.title,

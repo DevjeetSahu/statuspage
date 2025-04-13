@@ -35,6 +35,7 @@ class ServiceViewSet(viewsets.ModelViewSet):
         async_to_sync(channel_layer.group_send)(
             "status_updates",
             {
+                "model":"service",
                 "type": "send_status_update",
                 "data": {
                     "service_id": service_id,
@@ -49,6 +50,7 @@ class ServiceViewSet(viewsets.ModelViewSet):
         """Broadcasts the service change to all connected WebSocket clients."""
         channel_layer = get_channel_layer()
         data = {
+            "model":"service",
             "service_id": service.id,
             "name": service.name,
             "description":service.description,
@@ -113,6 +115,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         async_to_sync(channel_layer.group_send)(
             "incident_updates",
             {
+                "model":"incident",
                 "type": "send_incident_update",
                 "data": {
                     "incident_id": incident_id,
@@ -126,6 +129,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
     def notify_incident_change(self, incident, event="updated"):
         channel_layer = get_channel_layer()
         data = {
+            "model":"incident",
             "incident_id": incident.id,
             "title": incident.title,
             "description": incident.description,
