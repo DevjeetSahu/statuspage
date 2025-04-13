@@ -69,7 +69,7 @@ class Service(models.Model):
                 "data": {
                     "model": "service",
                     "type": "deleted",
-                    "id": self.id,
+                    "service_id": self.id,
                     "name": self.name,
                     "description": self.description,
                     "status": self.status,
