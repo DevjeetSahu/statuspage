@@ -64,7 +64,7 @@ MIDDLEWARE = [
 # Configure CORS - adjust allowed origins as needed:
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Frontend dev server
-    # Add more origins in production
+    "https://livestatus-qwz9.onrender.com",
 ]
 
 REST_FRAMEWORK = {
