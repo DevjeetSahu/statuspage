@@ -49,7 +49,7 @@ class Service(models.Model):
                         "name": self.name,
                         "description": self.description,
                         "status": self.status,
-                        "updated_at": self.updated_at.isoformat()
+                        "updated_at": str(self.updated_at),
                     },
                 },
             )
@@ -74,7 +74,7 @@ class Service(models.Model):
                     "description": self.description,
                     "status": self.status,
                     "event": "deleted",
-                    "updated_at": self.updated_at.isoformat(),
+                    "updated_at": str(self.updated_at),
                 },
             },
         )
@@ -132,7 +132,7 @@ class Incident(models.Model):
                         "title": self.title,
                         "description": self.description,
                         "status": self.status,
-                        "updated_at": self.updated_at.isoformat()
+                        "updated_at": str(self.updated_at)
                     },
                 },
             )
@@ -156,7 +156,7 @@ class Incident(models.Model):
                     "status": self.status,
                     "description": self.description,
                     "event": "deleted",
-                    "updated_at": self.updated_at.isoformat()
+                    "updated_at": str(self.updated_at),
                 },
             },
         )

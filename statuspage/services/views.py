@@ -132,7 +132,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
             "title": incident.title,
             "description": incident.description,
             "status": incident.status,
-            "updated_at": self.updated_at.isoformat(),
+            "updated_at": str(self.updated_at),
             "event": event,
         }
         async_to_sync(channel_layer.group_send)(
