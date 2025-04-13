@@ -28,8 +28,10 @@ SECRET_KEY = 'django-insecure-fo+jq@s5!ef+j5%i1!pn#6+pb2fh_3kis^t9esckcrxn9%_&*0
 # DEBUG = True
 DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['livestatus-qwz9.onrender.com']
 
+# settings.py
+CSRF_TRUSTED_ORIGINS = ['https://livestatus-frontend.onrender.com']
 
 # Application definition
 
