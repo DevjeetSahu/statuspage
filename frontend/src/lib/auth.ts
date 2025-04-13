@@ -1,6 +1,7 @@
 import axios from "axios"
 
-const BASE = "http://127.0.0.1:8000"
+const BASE = import.meta.env.VITE_API_BASE_URL;
+
 
 export const login = async (username: string, password: string) =>
   axios.post(`${BASE}/api/token/`, { username, password })
