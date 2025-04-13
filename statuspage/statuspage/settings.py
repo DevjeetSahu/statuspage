@@ -120,7 +120,7 @@ WSGI_APPLICATION = 'statuspage.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(
         # Replace this value with your local database's connection string.
-        default='postgresql://mysite:CyAzVCTpuf9zbP3BWTJphaJY6eFjH1b3@dpg-cuu42i7noe9s73d217o0-a/mysite_8dab',
+        default='postgresql://livestatus_db_user:dZEYXAXnmXFk16mZ8Fqgxor7vnZzqSFx@dpg-cvtohv49c44c738oqing-a.oregon-postgres.render.com/livestatus_db',
         conn_max_age=600
     )
 }
